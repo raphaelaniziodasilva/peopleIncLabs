@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
+using System.Text.Json.Serialization;
 
 namespace peopleIncLabs.Models
 {
@@ -16,12 +17,12 @@ namespace peopleIncLabs.Models
         public string Name { get; set; }
 
         [Required(ErrorMessage = "A idade é obrigatória")]
-        [Range(1, 150)]
+        [Range(1, 150, ErrorMessage = "A idade deve estar entre 1 e 150 anos")]
         public int Age { get; set; }
 
         [Required(ErrorMessage = "E-mail é obrigatório")]
-        [EmailAddress]
-        [MaxLength(150)]
+        [MaxLength(150, ErrorMessage = "O tamanho do e-mail não pode exceder 150 caracteres")]
+        [EmailAddress(ErrorMessage = "E-mail inválido")]
         public string Email { get; set; }
 
     }
