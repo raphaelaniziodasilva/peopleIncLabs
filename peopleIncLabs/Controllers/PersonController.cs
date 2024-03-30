@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using peopleIncLabs.Data.Dtos;
+using peopleIncLabs.Exceptions;
 using peopleIncLabs.Interfaces;
 using peopleIncLabs.Models;
+using System;
 
 namespace peopleIncLabs.Controllers
 {
-    
+
     [ApiController]
     [Route("api/[controller]")]
     public class PersonController : ControllerBase
@@ -22,14 +24,11 @@ namespace peopleIncLabs.Controllers
         /// </summary>
         /// <param name="personDto">Dados necessário para adicionar uma pessoa</param>
         /// <returns>IActionResult</returns>
-        /// <response code="201">Pessoa adicionada com sucesso</response>
-        /// <response code="400">Dados inválidos</response>
-        /// <response code="500">Erro interno no servidor</response>
         [HttpPost("cadastro")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)] 
-        public async Task<ActionResult<Person>> CreatePerson([FromBody] CreatePersonDto personDto)
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IActionResult>> CreatePerson(CreatePersonDto personDto)
         {
             try
             {
@@ -38,11 +37,11 @@ namespace peopleIncLabs.Controllers
             }
             catch (ArgumentException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
-            {   
-                return StatusCode(500, "Ocorreu um erro ao cadastrar a pessoa.");
+            {
+                return StatusCode(500, new { message = "Erro interno no servidor" });
             }
         }
 
@@ -52,14 +51,11 @@ namespace peopleIncLabs.Controllers
         /// <returns>IActionResult</returns>
         /// <param name="pageNumber">Número de páginas.</param>
         /// <param name="pageSize">Contém pessoas em cada página.</param>
-        /// <response code="200">Lista de pessoas obtida com sucesso</response>
-        /// <response code="400">Erro ao obter lista de pessoas</response>
-        /// <response code="500">Erro interno no servidor</response>
-        [HttpGet("Lista de Pessoas")]
+        [HttpGet("lista-de-pessoas")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<Person>>> GetPerson([FromQuery] int pageNumber = 1, [FromQuery] int pageSize = 10)
+        public async Task<IActionResult> GetPerson(int pageNumber = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
@@ -68,10 +64,62 @@ namespace peopleIncLabs.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "Ocorreu um erro ao obter as pessoas.");
+                return StatusCode(500, new { message = "Erro interno no servidor" });
             }
         }
 
+        /// <summary>
+        /// Obtendo pessoa pelo seu ID.
+        /// </summary>
+        /// <returns>IActionResult</returns>
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPersonById(long id)
+        {
+            try
+            {
+                return Ok(await _personService.GetPersonByIdAsync(id));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { message = "Pessoa não encontrada" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno no servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Atualizando Pessoa
+        /// </summary>
+        /// <param name="personDto">Dados necessário para atualizar pessoa</param>
+        /// <returns>IActionResult</returns>
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UpdatePerson(long id, UpdatePersonDto personDto)
+        {
+            try
+            {
+                var updatedPerson = await _personService.UpdatePersonAsync(id, personDto);
+                return Ok(updatedPerson);
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { message = "Pessoa não encontrada" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno no servidor" });
+            }
+
+        }
 
     }
 }

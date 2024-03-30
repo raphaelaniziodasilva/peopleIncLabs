@@ -1,17 +1,23 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 using peopleIncLabs.Data;
 using peopleIncLabs.Data.Dtos;
+using peopleIncLabs.Exceptions;
 using peopleIncLabs.Interfaces;
 using peopleIncLabs.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace peopleIncLabs.Services
 {
     public class PersonService : IPersonService
     {
         private readonly PersonContext _context;
-        public PersonService(PersonContext context)
+        private readonly ILogger<PersonService> _logger;
+
+        public PersonService(PersonContext context, ILogger<PersonService> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         public async Task<Person> CreatePersonAsync(CreatePersonDto personDto)
@@ -33,10 +39,10 @@ namespace peopleIncLabs.Services
                 _context.Person.Add(person);
                 await _context.SaveChangesAsync();
                 return person;
-
             }
-            catch (Exception ex)
+            catch (DbUpdateException ex)
             {
+                _logger.LogError(ex, "Erro ao adicionar pessoa");
                 throw;
             }
         }
@@ -53,19 +59,53 @@ namespace peopleIncLabs.Services
             }
             catch (Exception ex)
             {
-                throw new Exception("Ocorreu um erro ao obter as pessoas.", ex);
+                _logger.LogError(ex, "Erro ao obter lista de pessoas.");
+                throw;
             }
         }
 
         public async Task<Person> GetPersonByIdAsync(long id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var person = await _context.Person.FirstOrDefaultAsync(p => p.Id == id);
+
+                if (person == null)
+                {
+                    throw new NotFoundException("Pessoa não encontrada");
+                }
+
+                return person;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter pessoa por ID");
+                throw;
+            }
         }
 
-        public async Task<Person> UpdatePersonAsync(long id, CreatePersonDto personDto)
+        public async Task<Person> UpdatePersonAsync(long id, UpdatePersonDto personDto)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var person = await GetPersonByIdAsync(id);
+
+                person.Name = personDto.Name;
+                person.Age = personDto.Age;
+                person.Email = personDto.Email;
+
+                await _context.SaveChangesAsync();
+
+                return person;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar pessoa");
+                throw;
+            }
         }
+
+
 
         public async Task<bool> DeletePersonAsync(long id)
         {

@@ -8,7 +8,7 @@ namespace peopleIncLabs.Interfaces
         Task<Person> CreatePersonAsync(CreatePersonDto personDto);
         Task<IEnumerable<Person>> GetPersonsAsync(int pageNumber, int pageSize);
         Task<Person> GetPersonByIdAsync(long id);
-        Task<Person> UpdatePersonAsync(long id, CreatePersonDto personDto);
+        Task<Person> UpdatePersonAsync(long id, UpdatePersonDto personDto);
         Task<bool> DeletePersonAsync(long id);
        
     }
