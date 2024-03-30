@@ -107,9 +107,22 @@ namespace peopleIncLabs.Services
 
 
 
-        public async Task<bool> DeletePersonAsync(long id)
+        public async Task<string> DeletePersonAsync(long id)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var person = await GetPersonByIdAsync(id);
+
+                _context.Person.Remove(person);
+                await _context.SaveChangesAsync();
+
+                return "Pessoa removida com sucesso.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao deletar pessoa");
+                throw;
+            }
         }
     }
 }

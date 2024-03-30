@@ -28,7 +28,7 @@ namespace peopleIncLabs.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IActionResult>> CreatePerson(CreatePersonDto personDto)
+        public async Task<IActionResult> CreatePerson(CreatePersonDto personDto)
         {
             try
             {
@@ -119,6 +119,31 @@ namespace peopleIncLabs.Controllers
                 return StatusCode(500, new { message = "Erro interno no servidor" });
             }
 
+        }
+
+        /// <summary>
+        /// Removendo pessoa
+        /// </summary>
+        /// <returns>IActionResult</returns>
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> DeletePerson(long id)
+        {
+            try
+            {
+                return Ok(await _personService.DeletePersonAsync(id));
+            }
+            catch (NotFoundException ex)
+            {
+                return NotFound(new { message = "Pessoa não encontrada" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Erro interno no servidor" });
+            }
         }
 
     }
