@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using PeopleIncApi.Exceptions;
 using peopleIncLabs.Data.Dtos;
 using peopleIncLabs.Exceptions;
 using peopleIncLabs.Interfaces;
@@ -134,7 +135,8 @@ namespace peopleIncLabs.Controllers
         {
             try
             {
-                return Ok(await _personService.DeletePersonAsync(id));
+                await _personService.DeletePersonAsync(id);
+                return Ok("Pessoa removida com sucesso.");
             }
             catch (NotFoundException ex)
             {
@@ -146,5 +148,34 @@ namespace peopleIncLabs.Controllers
             }
         }
 
+        [HttpPost("csv")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UploadCsvFile(IFormFile file)
+        {
+            try
+            {
+                await _personService.UploadCsvFileAsync(file);
+                return Ok("Arquivo CSV foi processado com sucesso.");
+            }
+            catch (InvalidDataException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (HeaderException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ex.Message); // Corrigido para retornar BadRequest
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
     }
 }
+    

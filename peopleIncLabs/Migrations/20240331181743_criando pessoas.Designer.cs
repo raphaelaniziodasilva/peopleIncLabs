@@ -10,8 +10,8 @@ using peopleIncLabs.Data;
 namespace peopleIncLabs.Migrations
 {
     [DbContext(typeof(PersonContext))]
-    [Migration("20240329215930_create people table")]
-    partial class createpeopletable
+    [Migration("20240331181743_criando pessoas")]
+    partial class criandopessoas
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

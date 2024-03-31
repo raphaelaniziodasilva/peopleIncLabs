@@ -9,7 +9,7 @@ namespace peopleIncLabs.Interfaces
         Task<IEnumerable<Person>> GetPersonsAsync(int pageNumber, int pageSize);
         Task<Person> GetPersonByIdAsync(long id);
         Task<Person> UpdatePersonAsync(long id, UpdatePersonDto personDto);
-        Task<string> DeletePersonAsync(long id);
-       
+        Task DeletePersonAsync(long id);
+        Task UploadCsvFileAsync(IFormFile file);
     }
 }

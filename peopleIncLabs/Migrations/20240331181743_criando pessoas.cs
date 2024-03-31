@@ -5,7 +5,7 @@
 namespace peopleIncLabs.Migrations
 {
     /// <inheritdoc />
-    public partial class createpeopletable : Migration
+    public partial class criandopessoas : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

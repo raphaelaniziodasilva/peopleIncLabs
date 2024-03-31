@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using peopleIncLabs;
@@ -19,6 +20,11 @@ builder.Services.AddScoped<IPersonService, PersonService>();
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.Configure<FormOptions>(o =>
+{
+    o.ValueLengthLimit = 1024 * 1024; // 1MB
+});
 
 builder.Services.AddSwaggerGen(c =>
 {
