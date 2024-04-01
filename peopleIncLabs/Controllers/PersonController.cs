@@ -47,6 +47,40 @@ namespace peopleIncLabs.Controllers
         }
 
         /// <summary>
+        /// Adicione arquivo CSV aonde contém as informações.
+        /// </summary>
+        /// <param name="file">Arquivo do tipo CSV para adicionar as pessoas do arquivo.</param>
+        /// <returns>IActionResult</returns>
+        [HttpPost("csv")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> UploadCsvFile(IFormFile file)
+        {
+            try
+            {
+                await _personService.UploadCsvFileAsync(file);
+                return Ok("Arquivo CSV foi processado com sucesso.");
+            }
+            catch (InvalidDataException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (HeaderException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (BadRequestException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+            }
+        }
+
+        /// <summary>
         /// Listando todas as pessoas
         /// </summary>
         /// <returns>IActionResult</returns>
@@ -62,6 +96,10 @@ namespace peopleIncLabs.Controllers
             {
                 var persons = await _personService.GetPersonsAsync(pageNumber, pageSize);
                 return Ok(persons);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -86,7 +124,11 @@ namespace peopleIncLabs.Controllers
             }
             catch (NotFoundException ex)
             {
-                return NotFound(new { message = "Pessoa não encontrada" });
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -113,7 +155,11 @@ namespace peopleIncLabs.Controllers
             }
             catch (NotFoundException ex)
             {
-                return NotFound(new { message = "Pessoa não encontrada" });
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
@@ -140,42 +186,16 @@ namespace peopleIncLabs.Controllers
             }
             catch (NotFoundException ex)
             {
-                return NotFound(new { message = "Pessoa não encontrada" });
+                return NotFound(new { message = ex.Message });
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Erro interno no servidor" });
             }
         }
-
-        [HttpPost("csv")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> UploadCsvFile(IFormFile file)
-        {
-            try
-            {
-                await _personService.UploadCsvFileAsync(file);
-                return Ok("Arquivo CSV foi processado com sucesso.");
-            }
-            catch (InvalidDataException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (HeaderException ex)
-            {
-                return BadRequest(ex.Message);
-            }
-            catch (BadRequestException ex)
-            {
-                return BadRequest(ex.Message); // Corrigido para retornar BadRequest
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-            }
-        }
     }
 }
-    

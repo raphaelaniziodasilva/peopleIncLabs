@@ -54,80 +54,6 @@ namespace peopleIncLabs.Services
             }
         }
 
-        public async Task<IEnumerable<Person>> GetPersonsAsync(int pageNumber, int pageSize)
-        {
-            try
-            {
-                return await _context.Person
-                    .OrderBy(p => p.Id)
-                    .Skip((pageNumber - 1) * pageSize)
-                    .Take(pageSize)
-                    .ToListAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao obter lista de pessoas.");
-                throw;
-            }
-        }
-
-        public async Task<Person> GetPersonByIdAsync(long id)
-        {
-            try
-            {
-                var person = await _context.Person.FirstOrDefaultAsync(p => p.Id == id);
-
-                if (person == null)
-                {
-                    throw new NotFoundException("Pessoa não encontrada");
-                }
-
-                return person;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao obter pessoa por ID");
-                throw;
-            }
-        }
-
-        public async Task<Person> UpdatePersonAsync(long id, UpdatePersonDto personDto)
-        {
-            try
-            {
-                var person = await GetPersonByIdAsync(id);
-
-                person.Name = personDto.Name;
-                person.Age = personDto.Age;
-                person.Email = personDto.Email;
-
-                await _context.SaveChangesAsync();
-
-                return person;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao atualizar pessoa");
-                throw;
-            }
-        }
-
-        public async Task DeletePersonAsync(long id)
-        {
-            try
-            {
-                var person = await GetPersonByIdAsync(id);
-
-                _context.Person.Remove(person);
-                await _context.SaveChangesAsync();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Erro ao deletar pessoa");
-                throw;
-            }
-        }
-
         public async Task UploadCsvFileAsync(IFormFile file)
         {
             try
@@ -213,5 +139,79 @@ namespace peopleIncLabs.Services
             }
         }
 
+        public async Task<IEnumerable<Person>> GetPersonsAsync(int pageNumber, int pageSize)
+        {
+            try
+            {
+                return await _context.Person
+                    .OrderBy(p => p.Id)
+                    .Skip((pageNumber - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter lista de pessoas.");
+                throw;
+            }
+        }
+
+        public async Task<Person> GetPersonByIdAsync(long id)
+        {
+            try
+            {
+                var person = await _context.Person.FirstOrDefaultAsync(p => p.Id == id);
+
+                if (person == null)
+                {
+                    throw new NotFoundException("Pessoa não encontrada");
+                }
+
+                return person;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao obter pessoa por ID");
+                throw;
+            }
+        }
+
+        public async Task<Person> UpdatePersonAsync(long id, UpdatePersonDto personDto)
+        {
+            try
+            {
+                var person = await GetPersonByIdAsync(id);
+
+                person.Name = personDto.Name;
+                person.Age = personDto.Age;
+                person.Email = personDto.Email;
+
+                await _context.SaveChangesAsync();
+
+                return person;
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Erro ao atualizar pessoa");
+                throw;
+            }
+        }
+
+
+        public async Task DeletePersonAsync(long id)
+        {
+            try
+            {
+                var person = await GetPersonByIdAsync(id);
+
+                _context.Person.Remove(person);
+                await _context.SaveChangesAsync();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao deletar pessoa");
+                throw;
+            }
+        }
     }
 }
