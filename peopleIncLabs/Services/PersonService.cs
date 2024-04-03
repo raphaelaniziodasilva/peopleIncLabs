@@ -68,8 +68,6 @@ namespace peopleIncLabs.Services
                     throw new BadRequestException("Tamanho do arquivo 1MB.");
                 }
 
-                //List<string> invalidLines = new List<string>();
-
                 using (var reader = new StreamReader(file.OpenReadStream()))
                 {
                     const string expectedHeader = "nome;idade;email;";
@@ -92,23 +90,16 @@ namespace peopleIncLabs.Services
                         if (values.Length != 3)
                         {
                             throw new ArgumentException("Linhas inválida");
-                            //invalidLines.Add($"Linha {lineNumber}: {line} -  inválida");
-                            //continue;
                         }
 
                         if (!int.TryParse(values[1], out _))
                         {
                             throw new ArgumentException("Idade inválida");
-
-                            //invalidLines.Add($"Linha {lineNumber}: {line} - Idade inválida");
-                            //continue;
                         }
 
                         if (await _context.Person.AnyAsync(p => p.Email == values[2]))
                         {
-                            throw new ArgumentException("E-mail já cadastrado");
-                            //invalidLines.Add($"Linha {lineNumber}: {line} - E-mail já cadastrado");
-                            //continue;
+                            throw new ArgumentException("E-mail já cadastrado");                            
                         }
 
                         lineNumber++;
@@ -126,16 +117,10 @@ namespace peopleIncLabs.Services
                         }
                         catch (FormatException)
                         {
-                            throw new ArgumentException("Erro ao converter idade");
-                            //invalidLines.Add($"Linha {lineNumber}: {line} - Erro ao converter idade.");
+                            throw new ArgumentException("Erro ao converter idade");                            
                         }
                     }
                 }
-
-                //if (invalidLines.Any())
-                //{
-                //    throw new InvalidDataException($"Linhas inválidas:\n{string.Join("\n", invalidLines)}.");
-               // }
             }
             catch (Exception ex)
             {
